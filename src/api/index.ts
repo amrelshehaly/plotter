@@ -1,27 +1,17 @@
-import axios, { AxiosError } from 'axios'
+import axios, { AxiosResponse } from 'axios'
+import { ColumnResponse } from '../types/colmuns'
 
-type ColumnsProps = {
-    name: string
-    function: string
-}
-
-type ColumnResponse = {
-    columns : ColumnsProps[]
-} 
 
 const URL = import.meta.env.VITE_DOMAIN_URL
 
-export const getColumns = async () : Promise<ColumnResponse> => {
-    try {
-        const response = await axios.get<ColumnResponse>(`${URL}/columns`)
-        return response.data
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.log(error.status)
-            console.error(error.response);
-            throw error
-          } else {
-            throw new Error('different error than axios');
-          }
-    }    
+export const getColumnsApi = async () : Promise<AxiosResponse<ColumnResponse>> => {
+    // try {
+    return await axios.get<ColumnResponse>(`${URL}/columnss`)
+    // } catch (error) {
+    //   if (axios.isAxiosError(error)) {
+    //     throw error
+    //   } else {
+    //     throw new Error('different error than axios');
+    //   }
+    // }    
 }
