@@ -10,9 +10,10 @@ type DimensionBoxProps = {
     handleOnDragOver: (e: React.DragEvent<HTMLDivElement>) => void
     removeItem: (el: ColumnsProps) => void
     limit?: number
+    handleOnDragStart ?: (e: React.DragEvent<HTMLDivElement>) => void
 }
 
-const DimensionBox = ({elements, onReset, handleOnDragOver, handleOnDrop, removeItem, limit = 10}:DimensionBoxProps) => {
+const DimensionBox = ({elements, onReset, handleOnDragOver, handleOnDrop, removeItem, limit = 10, handleOnDragStart}:DimensionBoxProps) => {
   
   const handleCallBack = useCallback(() => {
     return false
@@ -20,10 +21,10 @@ const DimensionBox = ({elements, onReset, handleOnDragOver, handleOnDrop, remove
 
   return (
     <div className='Dimension_Container'>
-        <div className='elements' onDrop={limit && limit <= elements.length? handleCallBack : handleOnDrop} onDragOver={handleOnDragOver}>
+        <div className='elements' onDrop={limit && limit <= elements.length? handleCallBack : handleOnDrop} onDragOver={handleOnDragOver} onDragStart={handleOnDragStart}>
             {
                 elements.map((val) => (
-                    <div className='selectedBox'>
+                    <div className='selectedBox' draggable>
                         <div>
                             {val.name}
                         </div>
@@ -34,7 +35,7 @@ const DimensionBox = ({elements, onReset, handleOnDragOver, handleOnDrop, remove
                 ))
             }
         </div>
-        <div>
+        <div className='resetBtn'>
             <button onClick={onReset} type='button'>
                 reset
             </button>

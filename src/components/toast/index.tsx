@@ -1,3 +1,4 @@
+import closeIcon from '../../assets/close-x.svg'
 import './index.scss'
 
 type SnackBarProps = {
@@ -13,7 +14,7 @@ const SnackBar = ({message, onClose, open}: SnackBarProps) => {
             <div className='SnackBar_Container'>
                 <div>{message}</div>
                 <div onClick={onClose}>
-                    X
+                    <img src={closeIcon} alt='close-icon' />
                 </div>
             </div>}
         </> 

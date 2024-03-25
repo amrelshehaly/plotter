@@ -34,3 +34,16 @@
         }
     }
 }
+
+.resetBtn {
+    display: flex;
+    border-radius: 10px;
+    background-color: white;
+    width: 50px;
+    justify-content: center;
+    box-shadow: 3px 3px 2px 0px rgba(0,0,0,0.75);
+
+    :hover {
+        background-color: #aba7a7;
+    }
+}
