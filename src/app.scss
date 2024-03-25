@@ -1,5 +1,6 @@
 body {
     background-color: #d3d3d3;
+    margin: 0;
 }
 
 .layout {
@@ -12,6 +13,8 @@ body {
     background-color: darkblue;
     color: white;
     height: 100%;
+    border-radius: 0px 15px 15px 0px;
+    padding: 15px;
 }
 
 .dimensions_measures {

@@ -23,8 +23,8 @@ const DimensionBox = ({elements, onReset, handleOnDragOver, handleOnDrop, remove
     <div className='Dimension_Container'>
         <div className='elements' onDrop={limit && limit <= elements.length? handleCallBack : handleOnDrop} onDragOver={handleOnDragOver} onDragStart={handleOnDragStart}>
             {
-                elements.map((val) => (
-                    <div className='selectedBox' draggable>
+                elements.map((val, idx) => (
+                    <div key={idx} className='selectedBox' draggable>
                         <div>
                             {val.name}
                         </div>

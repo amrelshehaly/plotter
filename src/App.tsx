@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './app.scss'
 import GetColumnsHook from './context/getColumnsHook'
-import { ColumnsProps } from './types/colmuns'
+import { ColumnsProps, FunctionEnum } from './types/colmuns'
 import ColumnBar from './components/column'
 import DimensionBox from './components/DimensionBox'
 import SnackBar from './components/toast'
@@ -9,32 +9,35 @@ import SnackBar from './components/toast'
 function App() {
   // this always rerender on state changes in one of the other states
   const { columns, error, isLoading } = GetColumnsHook() 
-  const [ selectedColumns, setSelectedColumns ] = useState<ColumnsProps[]>([])
   const [ pickColumn, setPickColumn ] = useState<ColumnsProps[]>([])
+
+  const [ dimensions, setDimensions ] = useState<ColumnsProps[]>([])
   const [ measurements, setMeasurments ] = useState<ColumnsProps[]>([])
 
+
+
   const  handleDragStart = (e : React.DragEvent<HTMLDivElement>) => {
-    const value : ColumnsProps = {function: e.currentTarget.id, name: e.currentTarget.innerHTML }
+    const value : ColumnsProps = {function: e.currentTarget.id as FunctionEnum, name: e.currentTarget.innerHTML }
     e?.dataTransfer.setData("columnsType",JSON.stringify(value))
     console.log({ 'dragStart': e })
   }
 
 
   const handleOnDropDimension = (e: React.DragEvent<HTMLDivElement>) => {
-    const columnVal = JSON.parse(e.dataTransfer.getData("columnsType")) as ColumnsProps;
-    console.log({'handleDrop': columnVal })
-    if(columnVal.function != "dimension") return
-    const findElement = columns?.find((val) => val.name === columnVal.name)
+    const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
+    console.log({'handleDrop': columnVal });
+    if(columnVal.function != "dimension") return;
+    const findElement = columns?.find((val) => val.name === columnVal.name);
     if(findElement) {
-      setSelectedColumns([... selectedColumns, findElement])
-      const filteredColumns = pickColumn.filter((val) => val !== findElement)
-      setPickColumn([... filteredColumns])
+      setDimensions([... dimensions, findElement]);
+      const filteredColumns = pickColumn.filter((val) => val !== findElement);
+      setPickColumn([... filteredColumns]);
     } 
   }
 
 
   const handleOnDropMeasurment = (e: React.DragEvent<HTMLDivElement>) => {
-    const columnVal = JSON.parse(e.dataTransfer.getData("columnsType")) as ColumnsProps
+    const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
     console.log({'handleDrop': columnVal })
     if(columnVal.function != "measure") return
     const findElement = columns?.find((val) => val.name === columnVal.name)
@@ -44,11 +47,10 @@ function App() {
       setPickColumn([... filteredColumns])
     } 
   }
-  // console.log({ columns, error, isLoading })
 
-  const handleRemoveItem = (el: ColumnsProps) => {
-    const filteredItem =selectedColumns.filter((val) => val !== el)
-    setSelectedColumns([... filteredItem])
+  const handleRemoveDimensionItem = (el: ColumnsProps) => {
+    const filteredItem = dimensions.filter((val) => val !== el)
+    setDimensions([... filteredItem])
     setPickColumn([... pickColumn, el])
   }
 
@@ -56,6 +58,19 @@ function App() {
     const filteredItem =measurements.filter((val) => val !== el)
     setMeasurments([ ... filteredItem ])
     setPickColumn([... pickColumn, el])
+  }
+
+  const handleReset = (type :FunctionEnum) => {
+    switch (type) {
+      case FunctionEnum.DIMENSION:
+        setPickColumn([... pickColumn, ...dimensions])
+        setDimensions([]);
+        break;
+      case FunctionEnum.MEASURE:
+        setPickColumn([... pickColumn, ...measurements])
+        setMeasurments([]);
+        break;
+    }
   }
 
   const handleOnDragOver = (e: React.DragEvent<HTMLDivElement> | undefined) =>{
@@ -83,25 +98,16 @@ function App() {
       </div>
       <div>
         <h1>Plotter</h1>
-        {/* <div onDrop={handleOnDrop} onDragOver={handleOnDragOver} className='dimensions_measures' >
-          Place Here
-          {
-            selectedColumns.map((val) => (
-              <>
-                {val.name}
-              </>
-            ))
-          }
-        </div> */}
         <div>
           <span>Dimensions:</span>
           <DimensionBox 
-            removeItem={handleRemoveItem} 
-            elements={selectedColumns} 
+            removeItem={handleRemoveDimensionItem} 
+            elements={dimensions} 
             handleOnDrop={handleOnDropDimension} 
             handleOnDragOver={handleOnDragOver} 
-            onReset={() => console.log("reset")}
+            onReset={() => handleReset(FunctionEnum.DIMENSION)}
             handleOnDragStart={handleDragStart}
+            limit={1}
           />
         </div>
         <div>
@@ -111,7 +117,7 @@ function App() {
             elements={measurements} 
             handleOnDrop={handleOnDropMeasurment} 
             handleOnDragOver={handleOnDragOver} 
-            onReset={() => console.log("reset")}
+            onReset={() => handleReset(FunctionEnum.MEASURE)}
             handleOnDragStart={handleDragStart} 
           />
         </div>
