@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './app.scss'
 import GetColumnsHook from './context/getColumnsHook'
-import { ColumnsProps } from './types/colmuns'
+import { ColumnsProps, FunctionEnum } from './types/colmuns'
 import ColumnBar from './components/column'
 import DimensionBox from './components/DimensionBox'
 import SnackBar from './components/toast'
@@ -14,8 +14,10 @@ function App() {
   const [ dimensions, setDimensions ] = useState<ColumnsProps[]>([])
   const [ measurements, setMeasurments ] = useState<ColumnsProps[]>([])
 
+
+
   const  handleDragStart = (e : React.DragEvent<HTMLDivElement>) => {
-    const value : ColumnsProps = {function: e.currentTarget.id, name: e.currentTarget.innerHTML }
+    const value : ColumnsProps = {function: e.currentTarget.id as FunctionEnum, name: e.currentTarget.innerHTML }
     e?.dataTransfer.setData("columnsType",JSON.stringify(value))
     console.log({ 'dragStart': e })
   }
@@ -58,6 +60,19 @@ function App() {
     setPickColumn([... pickColumn, el])
   }
 
+  const handleReset = (type :FunctionEnum) => {
+    switch (type) {
+      case FunctionEnum.DIMENSION:
+        setPickColumn([... pickColumn, ...dimensions])
+        setDimensions([]);
+        break;
+      case FunctionEnum.MEASURE:
+        setPickColumn([... pickColumn, ...measurements])
+        setMeasurments([]);
+        break;
+    }
+  }
+
   const handleOnDragOver = (e: React.DragEvent<HTMLDivElement> | undefined) =>{
     e?.preventDefault()
   }
@@ -90,8 +105,9 @@ function App() {
             elements={dimensions} 
             handleOnDrop={handleOnDropDimension} 
             handleOnDragOver={handleOnDragOver} 
-            onReset={() => console.log("reset")}
+            onReset={() => handleReset(FunctionEnum.DIMENSION)}
             handleOnDragStart={handleDragStart}
+            limit={1}
           />
         </div>
         <div>
@@ -101,7 +117,7 @@ function App() {
             elements={measurements} 
             handleOnDrop={handleOnDropMeasurment} 
             handleOnDragOver={handleOnDragOver} 
-            onReset={() => console.log("reset")}
+            onReset={() => handleReset(FunctionEnum.MEASURE)}
             handleOnDragStart={handleDragStart} 
           />
         </div>

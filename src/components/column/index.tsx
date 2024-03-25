@@ -1,9 +1,10 @@
 import React from 'react'
 import './index.scss'
+import { FunctionEnum } from '../../types/colmuns'
 
 type ColumnBarProps = {
   title: string,
-  type: string
+  type: FunctionEnum
   onDragStart: (e: React.DragEvent<HTMLDivElement>) => void
 }
 
