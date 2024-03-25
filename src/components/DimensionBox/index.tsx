@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import './index.scss'
 import { ColumnsProps } from '../../types/colmuns'
 import closeIcon from '../../assets/close-x.svg'
@@ -9,12 +9,18 @@ type DimensionBoxProps = {
     handleOnDrop: (e: React.DragEvent<HTMLDivElement>) => void
     handleOnDragOver: (e: React.DragEvent<HTMLDivElement>) => void
     removeItem: (el: ColumnsProps) => void
+    limit?: number
 }
 
-const DimensionBox = ({elements, onReset, handleOnDragOver, handleOnDrop, removeItem}:DimensionBoxProps) => {
+const DimensionBox = ({elements, onReset, handleOnDragOver, handleOnDrop, removeItem, limit = 10}:DimensionBoxProps) => {
+  
+  const handleCallBack = useCallback(() => {
+    return false
+  },[])  
+
   return (
     <div className='Dimension_Container'>
-        <div className='elements' onDrop={handleOnDrop} onDragOver={handleOnDragOver}>
+        <div className='elements' onDrop={limit && limit <= elements.length? handleCallBack : handleOnDrop} onDragOver={handleOnDragOver}>
             {
                 elements.map((val) => (
                     <div className='selectedBox'>
