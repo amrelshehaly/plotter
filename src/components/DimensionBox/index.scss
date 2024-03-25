@@ -1,0 +1,36 @@
+.Dimension_Container {
+    min-width: 600px;
+    height: 50px;
+    border: 1px solid black;
+    padding: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.elements {
+    display: flex;
+    gap: 10px;
+    height: 100%;
+    width: 100%;
+    border: 1px dashed black;
+}
+
+.selectedBox {
+    width: max-content;
+    height: 35px;
+    background-color: darkorange;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    & :last-child {
+        width: 20px;
+        margin-left: 5px;
+        & :hover {
+            cursor: pointer;
+        }
+    }
+}
