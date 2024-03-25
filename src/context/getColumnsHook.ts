@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { getColumnsApi } from "../api";
-import { ColumnResponse } from "../types/colmuns";
+import { ColumnsProps } from "../types/colmuns";
 
 const GetColumnsHook = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [columns, setColumns] = useState<ColumnResponse>();
+  const [columns, setColumns] = useState<ColumnsProps[]>();
 
   const handleGetColumns = async () => {
     try {
@@ -13,7 +13,7 @@ const GetColumnsHook = () => {
         setError('')
         const res = await getColumnsApi();
         if (res.status === 200) {
-          setColumns(res.data);
+          setColumns(res.data.columns);
         } 
     } catch (error) {
         setError("Error getting the columns");
