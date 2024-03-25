@@ -1,0 +1,28 @@
+.SnackBar_Container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 300px;
+    padding: 1%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+    background-color: red;
+    border-radius: 10px;
+
+    & :first-child {
+        color: white;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    & :last-child {
+        color: black;
+        font-weight: bolder;
+        
+        & :hover {
+            cursor: pointer;
+        }
+    }
+}

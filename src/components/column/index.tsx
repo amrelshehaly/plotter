@@ -3,13 +3,13 @@ import './index.scss'
 
 type ColumnBarProps = {
   title: string,
-  key: string
+  type: string
   onDragStart: (e: React.DragEvent<HTMLDivElement>) => void
 }
 
-const ColumnBar = ({key, title, onDragStart}:ColumnBarProps) => {
+const ColumnBar = ({type, title, onDragStart}:ColumnBarProps) => {
   return (
-    <div className='container' key={key} draggable onDragStart={onDragStart}>
+    <div className='container' id={type}  draggable onDragStart={onDragStart}>
       {title}
     </div>
   )
