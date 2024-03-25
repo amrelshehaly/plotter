@@ -9,8 +9,9 @@ import SnackBar from './components/toast'
 function App() {
   // this always rerender on state changes in one of the other states
   const { columns, error, isLoading } = GetColumnsHook() 
-  const [ selectedColumns, setSelectedColumns ] = useState<ColumnsProps[]>([])
   const [ pickColumn, setPickColumn ] = useState<ColumnsProps[]>([])
+
+  const [ dimensions, setDimensions ] = useState<ColumnsProps[]>([])
   const [ measurements, setMeasurments ] = useState<ColumnsProps[]>([])
 
   const  handleDragStart = (e : React.DragEvent<HTMLDivElement>) => {
@@ -21,20 +22,20 @@ function App() {
 
 
   const handleOnDropDimension = (e: React.DragEvent<HTMLDivElement>) => {
-    const columnVal = JSON.parse(e.dataTransfer.getData("columnsType")) as ColumnsProps;
-    console.log({'handleDrop': columnVal })
-    if(columnVal.function != "dimension") return
-    const findElement = columns?.find((val) => val.name === columnVal.name)
+    const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
+    console.log({'handleDrop': columnVal });
+    if(columnVal.function != "dimension") return;
+    const findElement = columns?.find((val) => val.name === columnVal.name);
     if(findElement) {
-      setSelectedColumns([... selectedColumns, findElement])
-      const filteredColumns = pickColumn.filter((val) => val !== findElement)
-      setPickColumn([... filteredColumns])
+      setDimensions([... dimensions, findElement]);
+      const filteredColumns = pickColumn.filter((val) => val !== findElement);
+      setPickColumn([... filteredColumns]);
     } 
   }
 
 
   const handleOnDropMeasurment = (e: React.DragEvent<HTMLDivElement>) => {
-    const columnVal = JSON.parse(e.dataTransfer.getData("columnsType")) as ColumnsProps
+    const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
     console.log({'handleDrop': columnVal })
     if(columnVal.function != "measure") return
     const findElement = columns?.find((val) => val.name === columnVal.name)
@@ -44,11 +45,10 @@ function App() {
       setPickColumn([... filteredColumns])
     } 
   }
-  // console.log({ columns, error, isLoading })
 
-  const handleRemoveItem = (el: ColumnsProps) => {
-    const filteredItem =selectedColumns.filter((val) => val !== el)
-    setSelectedColumns([... filteredItem])
+  const handleRemoveDimensionItem = (el: ColumnsProps) => {
+    const filteredItem = dimensions.filter((val) => val !== el)
+    setDimensions([... filteredItem])
     setPickColumn([... pickColumn, el])
   }
 
@@ -83,21 +83,11 @@ function App() {
       </div>
       <div>
         <h1>Plotter</h1>
-        {/* <div onDrop={handleOnDrop} onDragOver={handleOnDragOver} className='dimensions_measures' >
-          Place Here
-          {
-            selectedColumns.map((val) => (
-              <>
-                {val.name}
-              </>
-            ))
-          }
-        </div> */}
         <div>
           <span>Dimensions:</span>
           <DimensionBox 
-            removeItem={handleRemoveItem} 
-            elements={selectedColumns} 
+            removeItem={handleRemoveDimensionItem} 
+            elements={dimensions} 
             handleOnDrop={handleOnDropDimension} 
             handleOnDragOver={handleOnDragOver} 
             onReset={() => console.log("reset")}
