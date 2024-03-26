@@ -1,17 +1,21 @@
 import React from 'react'
 import './index.scss'
-import { FunctionEnum } from '../../types/colmuns'
+import { ColumnsProps } from '../../types/colmuns'
 
 type ColumnBarProps = {
-  title: string,
-  type: FunctionEnum
-  onDragStart: (e: React.DragEvent<HTMLDivElement>) => void
+  format: string
+  data: ColumnsProps
 }
 
-const ColumnBar = ({type, title, onDragStart}:ColumnBarProps) => {
+const ColumnBar = ({format, data}:ColumnBarProps) => {
+
+  const  handleDragStart = (e : React.DragEvent<HTMLDivElement>) => {
+    e?.dataTransfer.setData(format, JSON.stringify(data))
+  }
+
   return (
-    <div className='container' id={type}  draggable onDragStart={onDragStart}>
-      {title}
+    <div className='container' draggable onDragStart={handleDragStart}>
+      {data.name}
     </div>
   )
 }

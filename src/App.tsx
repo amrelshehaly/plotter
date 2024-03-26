@@ -19,45 +19,42 @@ function App() {
 
   const { data, error: dataError, isLoading: loadingData, setParams, clearError: clearErrorData , isError: isErrorData } = GetDataHook()
 
-  const  handleDragStart = (e : React.DragEvent<HTMLDivElement>) => {
-    const value : ColumnsProps = {function: e.currentTarget.id as FunctionEnum, name: e.currentTarget.innerHTML }
-    e?.dataTransfer.setData("columnsType",JSON.stringify(value))
-  }
-
-
-  const handleOnDropDimension = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleOnDrop = (e: React.DragEvent<HTMLDivElement>, type: FunctionEnum) => {
     const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
-    if(columnVal.function != "dimension") return;
+    if(columnVal.function != type) return;
     const findElement = columns?.find((val) => val.name === columnVal.name);
-    if(findElement) {
-      setDimensions([... dimensions, findElement]);
-      const filteredColumns = pickColumn.filter((val) => val !== findElement);
-      setPickColumn([... filteredColumns]);
-    } 
+    if(!findElement) return
+    const filteredColumns = pickColumn.filter((val) => val !== findElement);
+    switch (type) {
+      case FunctionEnum.DIMENSION:
+        setDimensions([... dimensions, findElement]);
+        setPickColumn([... filteredColumns]);
+        break;
+      case FunctionEnum.MEASURE:
+        setMeasurments([... measurements, findElement])
+        setPickColumn([... filteredColumns])
+      break;
+    
+    }
   }
 
-
-  const handleOnDropMeasurment = (e: React.DragEvent<HTMLDivElement>) => {
-    const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
-    if(columnVal.function != "measure") return
-    const findElement = columns?.find((val) => val.name === columnVal.name)
-    if(findElement) {
-      setMeasurments([... measurements, findElement])
-      const filteredColumns = pickColumn.filter((val) => val !== findElement)
-      setPickColumn([... filteredColumns])
-    } 
-  }
-
-  const handleRemoveDimensionItem = (el: ColumnsProps) => {
-    const filteredItem = dimensions.filter((val) => val !== el)
-    setDimensions([... filteredItem])
-    setPickColumn([... pickColumn, el])
-  }
-
-  const handleRemoveMeasurementItem = (el: ColumnsProps) => {
-    const filteredItem =measurements.filter((val) => val !== el)
-    setMeasurments([ ... filteredItem ])
-    setPickColumn([... pickColumn, el])
+  const handleRemoveItem = (el: ColumnsProps, type: FunctionEnum) => {
+    switch (type) {
+      case FunctionEnum.DIMENSION:
+        { const filteredItem = dimensions.filter((val) => val !== el)
+          setDimensions([... filteredItem])
+          setPickColumn([... pickColumn, el])
+        }
+        break;
+    
+      case FunctionEnum.MEASURE:
+        {
+          const filteredItem =measurements.filter((val) => val !== el)
+          setMeasurments([ ... filteredItem ])
+          setPickColumn([... pickColumn, el])
+        }
+      break;
+    }
   }
 
   const handleReset = (type :FunctionEnum) => {
@@ -73,9 +70,6 @@ function App() {
     }
   }
 
-  const handleOnDragOver = (e: React.DragEvent<HTMLDivElement> | undefined) =>{
-    e?.preventDefault()
-  }
 
   useEffect(() => {
     if(columns){
@@ -125,7 +119,7 @@ function App() {
           {
             pickColumn?.map((val, idx) => (
               <>
-                <ColumnBar key={idx} title={val.name} onDragStart={handleDragStart} type={val.function}  />
+                <ColumnBar key={idx} data={val} format='columnsType'  />
               </>
             ))
           }
@@ -135,24 +129,20 @@ function App() {
           <div>
             <span>Dimensions:</span>
             <DimensionBox 
-              removeItem={handleRemoveDimensionItem} 
+              removeItem={(e) => handleRemoveItem(e, FunctionEnum.DIMENSION)} 
               elements={dimensions} 
-              handleOnDrop={handleOnDropDimension} 
-              handleOnDragOver={handleOnDragOver} 
+              handleOnDrop={(e) => handleOnDrop(e, FunctionEnum.DIMENSION)} 
               onReset={() => handleReset(FunctionEnum.DIMENSION)}
-              handleOnDragStart={handleDragStart}
               limit={1}
             />
           </div>
           <div>
             <span>Measurments:</span>
             <DimensionBox 
-              removeItem={handleRemoveMeasurementItem} 
+              removeItem={(e) => handleRemoveItem(e, FunctionEnum.MEASURE)} 
               elements={measurements} 
-              handleOnDrop={handleOnDropMeasurment} 
-              handleOnDragOver={handleOnDragOver} 
+              handleOnDrop={(e) => handleOnDrop(e, FunctionEnum.MEASURE)} 
               onReset={() => handleReset(FunctionEnum.MEASURE)}
-              handleOnDragStart={handleDragStart} 
             />
           </div>
           { dimensions.length > 0 && measurements.length > 0 && 

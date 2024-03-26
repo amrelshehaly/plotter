@@ -7,24 +7,26 @@ type DimensionBoxProps = {
     elements : ColumnsProps[]
     onReset: () => void
     handleOnDrop: (e: React.DragEvent<HTMLDivElement>) => void
-    handleOnDragOver: (e: React.DragEvent<HTMLDivElement>) => void
     removeItem: (el: ColumnsProps) => void
     limit?: number
-    handleOnDragStart ?: (e: React.DragEvent<HTMLDivElement>) => void
 }
 
-const DimensionBox = ({elements, onReset, handleOnDragOver, handleOnDrop, removeItem, limit = 10, handleOnDragStart}:DimensionBoxProps) => {
+const DimensionBox = ({elements, onReset, handleOnDrop, removeItem, limit = 10}:DimensionBoxProps) => {
   
   const handleCallBack = useCallback(() => {
     return false
-  },[])  
+  },[]) 
+
+  const handleOnDragOver = (e: React.DragEvent<HTMLDivElement>) =>{
+    e?.preventDefault()
+  }
 
   return (
     <div className='Dimension_Container'>
-        <div className='elements' onDrop={limit && limit <= elements.length? handleCallBack : handleOnDrop} onDragOver={handleOnDragOver} onDragStart={handleOnDragStart}>
+        <div className='elements' onDrop={limit && limit <= elements.length? handleCallBack : handleOnDrop} onDragOver={handleOnDragOver}>
             {
                 elements.map((val, idx) => (
-                    <div key={idx} className='selectedBox' draggable>
+                    <div key={idx} className='selectedBox'>
                         <div>
                             {val.name}
                         </div>
