@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getColumnsApi } from "../api";
-import { ColumnsProps } from "../types/colmuns";
+import { ColumnsProps, FunctionEnum } from "../types/colmuns";
+
+/**
+ * 
+ * @returns This custom hook is used to retrieve the columns from the {getColumnApi}, with other properties needed to handle
+ *          data, error and loading.
+ */
 
 const GetColumnsHook = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -30,6 +36,13 @@ const GetColumnsHook = () => {
     setIsError(false)
   }
 
+    /**
+   * This method to exclusivly extract the dimension function from the response
+   */
+    const dimensionFunc = useMemo(() => {
+      return columns?.filter((val) => val.function === FunctionEnum.DIMENSION ).map((val) => val.name)
+    },[columns])
+
   useEffect(() => {
     handleGetColumns();
   }, []);
@@ -39,8 +52,11 @@ const GetColumnsHook = () => {
     error,
     columns,
     clearError: handleClearError,
-    isError
+    isError,
+    dimensionFunc
   };
 };
 
 export default GetColumnsHook;
+
+

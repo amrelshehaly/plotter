@@ -9,82 +9,81 @@ import LinearGraph from './components/lineargraph'
 import GetDataHook from './hooks/getDataHook'
 import LoadingSpinner from './components/loader'
 
-function App() {
-  const { columns, error, isLoading, clearError, isError } = GetColumnsHook() 
-  const [ pickColumn, setPickColumn ] = useState<ColumnsProps[]>([])
+const App = () => {
+  const { columns, error, isLoading, clearError, isError, dimensionFunc } = GetColumnsHook()
+  const [pickColumn, setPickColumn] = useState<ColumnsProps[]>([])
 
-  const [ dimensions, setDimensions ] = useState<ColumnsProps[]>([])
-  const [ measurements, setMeasurments ] = useState<ColumnsProps[]>([])
-
-
-  const { data, error: dataError, isLoading: loadingData, setParams, clearError: clearErrorData , isError: isErrorData } = GetDataHook()
-
-  const  handleDragStart = (e : React.DragEvent<HTMLDivElement>) => {
-    const value : ColumnsProps = {function: e.currentTarget.id as FunctionEnum, name: e.currentTarget.innerHTML }
-    e?.dataTransfer.setData("columnsType",JSON.stringify(value))
-  }
+  const [dimensions, setDimensions] = useState<ColumnsProps[]>([])
+  const [measurements, setMeasurments] = useState<ColumnsProps[]>([])
 
 
-  const handleOnDropDimension = (e: React.DragEvent<HTMLDivElement>) => {
+  const { data, error: dataError, isLoading: loadingData, setParams, clearError: clearErrorData, isError: isErrorData } = GetDataHook()
+
+  const handleOnDrop = (e: React.DragEvent<HTMLDivElement>, type: FunctionEnum) => {
     const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
-    if(columnVal.function != "dimension") return;
+    if (columnVal.function != type) return;
     const findElement = columns?.find((val) => val.name === columnVal.name);
-    if(findElement) {
-      setDimensions([... dimensions, findElement]);
-      const filteredColumns = pickColumn.filter((val) => val !== findElement);
-      setPickColumn([... filteredColumns]);
-    } 
-  }
-
-
-  const handleOnDropMeasurment = (e: React.DragEvent<HTMLDivElement>) => {
-    const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
-    if(columnVal.function != "measure") return
-    const findElement = columns?.find((val) => val.name === columnVal.name)
-    if(findElement) {
-      setMeasurments([... measurements, findElement])
-      const filteredColumns = pickColumn.filter((val) => val !== findElement)
-      setPickColumn([... filteredColumns])
-    } 
-  }
-
-  const handleRemoveDimensionItem = (el: ColumnsProps) => {
-    const filteredItem = dimensions.filter((val) => val !== el)
-    setDimensions([... filteredItem])
-    setPickColumn([... pickColumn, el])
-  }
-
-  const handleRemoveMeasurementItem = (el: ColumnsProps) => {
-    const filteredItem =measurements.filter((val) => val !== el)
-    setMeasurments([ ... filteredItem ])
-    setPickColumn([... pickColumn, el])
-  }
-
-  const handleReset = (type :FunctionEnum) => {
+    if (!findElement) return
+    const filteredColumns = pickColumn.filter((val) => val !== findElement);
     switch (type) {
       case FunctionEnum.DIMENSION:
-        setPickColumn([... pickColumn, ...dimensions])
+        setDimensions([...dimensions, findElement]);
+        setPickColumn([...filteredColumns]);
+        break;
+      case FunctionEnum.MEASURE:
+        setMeasurments([...measurements, findElement])
+        setPickColumn([...filteredColumns])
+        break;
+
+    }
+  }
+
+  const handleRemoveItem = (el: ColumnsProps, type: FunctionEnum) => {
+    switch (type) {
+      case FunctionEnum.DIMENSION:
+        {
+          const filteredItem = dimensions.filter((val) => val !== el)
+          setDimensions([...filteredItem])
+          setPickColumn([...pickColumn, el])
+        }
+        break;
+
+      case FunctionEnum.MEASURE:
+        {
+          const filteredItem = measurements.filter((val) => val !== el)
+          setMeasurments([...filteredItem])
+          setPickColumn([...pickColumn, el])
+        }
+        break;
+    }
+  }
+
+  const handleReset = (type: FunctionEnum) => {
+    switch (type) {
+      case FunctionEnum.DIMENSION:
+        setPickColumn([...pickColumn, ...dimensions])
         setDimensions([]);
         break;
       case FunctionEnum.MEASURE:
-        setPickColumn([... pickColumn, ...measurements])
+        setPickColumn([...pickColumn, ...measurements])
         setMeasurments([]);
         break;
     }
   }
 
-  const handleOnDragOver = (e: React.DragEvent<HTMLDivElement> | undefined) =>{
-    e?.preventDefault()
-  }
 
   useEffect(() => {
-    if(columns){
-      setPickColumn([... columns])
+    if (columns) {
+      setPickColumn([...columns])
     }
-  },[columns])
+  }, [columns])
 
-  useEffect (() => {
-    if(dimensions.length > 0 && measurements.length > 0) {
+
+  /**
+   *  This will only  send or change the params of the POST request if both Dimension and Measure are available.
+   */
+  useEffect(() => {
+    if (dimensions.length > 0 && measurements.length > 0) {
       setParams({
         dimension: dimensions[0].name,
         measures: measurements.map((val) => (val.name))
@@ -92,19 +91,19 @@ function App() {
     }
   }, [measurements, dimensions, setParams])
 
-  const dimensionOnly = useMemo(() => {
-    return columns?.filter((val) => val.function === FunctionEnum.DIMENSION ).map((val) => val.name)
-  },[columns])
 
+  /**
+   *  This function is to handle the response to identify, which is qualitative and quantitative for the graph to display.
+   */
   const modifiedData = useMemo(() => {
     let qualitative: string[] = []
     let quantitative: DataPlotTypes[] = []
 
     data?.forEach((el) => {
-      if(dimensionOnly?.includes(el.name)){
-        qualitative = [...qualitative, ... el.values]
-      }else{
-        quantitative = [... quantitative, el]
+      if (dimensionFunc?.includes(el.name)) {
+        qualitative = [...qualitative, ...el.values]
+      } else {
+        quantitative = [...quantitative, el]
       }
     })
 
@@ -113,7 +112,7 @@ function App() {
       quantitative
     }
 
-  },[data, dimensionOnly])
+  }, [data, dimensionFunc])
 
   return (
     <div>
@@ -125,7 +124,7 @@ function App() {
           {
             pickColumn?.map((val, idx) => (
               <>
-                <ColumnBar key={idx} title={val.name} onDragStart={handleDragStart} type={val.function}  />
+                <ColumnBar key={idx} data={val} format='columnsType' />
               </>
             ))
           }
@@ -134,29 +133,25 @@ function App() {
           <h1>Plotter</h1>
           <div>
             <span>Dimensions:</span>
-            <DimensionBox 
-              removeItem={handleRemoveDimensionItem} 
-              elements={dimensions} 
-              handleOnDrop={handleOnDropDimension} 
-              handleOnDragOver={handleOnDragOver} 
+            <DimensionBox
+              removeItem={(e) => handleRemoveItem(e, FunctionEnum.DIMENSION)}
+              elements={dimensions}
+              handleOnDrop={(e) => handleOnDrop(e, FunctionEnum.DIMENSION)}
               onReset={() => handleReset(FunctionEnum.DIMENSION)}
-              handleOnDragStart={handleDragStart}
               limit={1}
             />
           </div>
           <div>
             <span>Measurments:</span>
-            <DimensionBox 
-              removeItem={handleRemoveMeasurementItem} 
-              elements={measurements} 
-              handleOnDrop={handleOnDropMeasurment} 
-              handleOnDragOver={handleOnDragOver} 
+            <DimensionBox
+              removeItem={(e) => handleRemoveItem(e, FunctionEnum.MEASURE)}
+              elements={measurements}
+              handleOnDrop={(e) => handleOnDrop(e, FunctionEnum.MEASURE)}
               onReset={() => handleReset(FunctionEnum.MEASURE)}
-              handleOnDragStart={handleDragStart} 
             />
           </div>
-          { dimensions.length > 0 && measurements.length > 0 && 
-            <LinearGraph  qualitative={modifiedData.qualitative} quantitative={modifiedData.quantitative} />
+          {dimensions.length > 0 && measurements.length > 0 &&
+            <LinearGraph qualitative={modifiedData.qualitative} quantitative={modifiedData.quantitative} />
           }
         </div>
       </div>

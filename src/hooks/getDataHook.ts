@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react'
 import { getDataApi } from '../api';
 import { DataPlotTypes, GetDataParams } from '../types/colmuns';
 
+/**
+ * 
+ * @returns This custom hook is used to retrieve the data from the {getDataApi}, with other properties needed to handle
+ *          data, error and loading.
+ */
+
 const GetDataHook = () => {
     const [isLoading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
