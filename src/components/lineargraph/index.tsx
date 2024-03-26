@@ -11,7 +11,7 @@ import {
 import { useMemo } from 'react';
   import { Line } from 'react-chartjs-2';
 import { DataPlotTypes } from '../../types/colmuns';
-  
+import './index.scss'
   
   ChartJS.register(
     CategoryScale,
@@ -31,7 +31,7 @@ import { DataPlotTypes } from '../../types/colmuns';
       },
       title: {
         display: true,
-        text: 'Chart.js Line Chart',
+        text: 'Plotter',
       },
     },
   };
@@ -56,7 +56,9 @@ const LinearGraph = ({qualitative, quantitative}:LinearGraphProps) => {
     },[qualitative, quantitative])
 
   return (
-    <Line options={options} data={data} />
+    <div className='canvas_container'>
+      <Line options={options} data={data}  />
+    </div>
   )
 }
 
