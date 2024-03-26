@@ -43,15 +43,19 @@ import './index.scss'
 
 const LinearGraph = ({qualitative, quantitative}:LinearGraphProps) => {
 
+
     const data = useMemo(() => {
         return {
             labels: qualitative,
-            datasets: quantitative.map((val) => ({
-                label: val.name,
-                data: val.values,
-                borderColor: 'rgb(53, 162, 235)',
-                backgroundColor: 'rgba(53, 162, 235, 0.5)',
-            }))
+            datasets: quantitative.map((val) => {
+                const newRandomColor = Math.floor(Math.random() * 256)
+                return {
+                  label: val.name,
+                  data: val.values,
+                  borderColor: `rgb(${newRandomColor}, 162, 235)`,
+                  backgroundColor: `rgba(${newRandomColor}, 162, 235, 0.5)`,
+                }
+            })
         }
     },[qualitative, quantitative])
 
