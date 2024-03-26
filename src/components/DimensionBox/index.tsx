@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import './index.scss'
 import { ColumnsProps } from '../../types/colmuns'
 import closeIcon from '../../assets/close-x.svg'
@@ -11,11 +11,20 @@ type DimensionBoxProps = {
     limit?: number
 }
 
+/**
+ * 
+ * @param {number} limit - The maximum number of items to add in the DimensionBox.
+ * @param {Function} removeItem - This function is used to remove specefic item or column of type {ColumnsProps} from the the picked list.
+ * @param {Function} onReset - This method is used to clear all picked items in the list.
+ * @param {Function} handleOnDrop - This Function is used to handle the drop callback from a draggable Item and place it in the DimensionBox Component.                                                       
+ * @param {ColumnsProps[]} elements - The array in which that contains the properties for DimensionBox Component.
+ */
+
 const DimensionBox = ({elements, onReset, handleOnDrop, removeItem, limit = 10}:DimensionBoxProps) => {
   
-  const handleCallBack = useCallback(() => {
+  const handleCallBack = () => {
     return false
-  },[]) 
+  }
 
   const handleOnDragOver = (e: React.DragEvent<HTMLDivElement>) =>{
     e?.preventDefault()

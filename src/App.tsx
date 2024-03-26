@@ -9,62 +9,63 @@ import LinearGraph from './components/lineargraph'
 import GetDataHook from './hooks/getDataHook'
 import LoadingSpinner from './components/loader'
 
-function App() {
-  const { columns, error, isLoading, clearError, isError } = GetColumnsHook() 
-  const [ pickColumn, setPickColumn ] = useState<ColumnsProps[]>([])
+const App = () => {
+  const { columns, error, isLoading, clearError, isError, dimensionFunc } = GetColumnsHook()
+  const [pickColumn, setPickColumn] = useState<ColumnsProps[]>([])
 
-  const [ dimensions, setDimensions ] = useState<ColumnsProps[]>([])
-  const [ measurements, setMeasurments ] = useState<ColumnsProps[]>([])
+  const [dimensions, setDimensions] = useState<ColumnsProps[]>([])
+  const [measurements, setMeasurments] = useState<ColumnsProps[]>([])
 
 
-  const { data, error: dataError, isLoading: loadingData, setParams, clearError: clearErrorData , isError: isErrorData } = GetDataHook()
+  const { data, error: dataError, isLoading: loadingData, setParams, clearError: clearErrorData, isError: isErrorData } = GetDataHook()
 
   const handleOnDrop = (e: React.DragEvent<HTMLDivElement>, type: FunctionEnum) => {
     const columnVal: ColumnsProps = JSON.parse(e.dataTransfer.getData("columnsType"));
-    if(columnVal.function != type) return;
+    if (columnVal.function != type) return;
     const findElement = columns?.find((val) => val.name === columnVal.name);
-    if(!findElement) return
+    if (!findElement) return
     const filteredColumns = pickColumn.filter((val) => val !== findElement);
     switch (type) {
       case FunctionEnum.DIMENSION:
-        setDimensions([... dimensions, findElement]);
-        setPickColumn([... filteredColumns]);
+        setDimensions([...dimensions, findElement]);
+        setPickColumn([...filteredColumns]);
         break;
       case FunctionEnum.MEASURE:
-        setMeasurments([... measurements, findElement])
-        setPickColumn([... filteredColumns])
-      break;
-    
+        setMeasurments([...measurements, findElement])
+        setPickColumn([...filteredColumns])
+        break;
+
     }
   }
 
   const handleRemoveItem = (el: ColumnsProps, type: FunctionEnum) => {
     switch (type) {
       case FunctionEnum.DIMENSION:
-        { const filteredItem = dimensions.filter((val) => val !== el)
-          setDimensions([... filteredItem])
-          setPickColumn([... pickColumn, el])
+        {
+          const filteredItem = dimensions.filter((val) => val !== el)
+          setDimensions([...filteredItem])
+          setPickColumn([...pickColumn, el])
         }
         break;
-    
+
       case FunctionEnum.MEASURE:
         {
-          const filteredItem =measurements.filter((val) => val !== el)
-          setMeasurments([ ... filteredItem ])
-          setPickColumn([... pickColumn, el])
+          const filteredItem = measurements.filter((val) => val !== el)
+          setMeasurments([...filteredItem])
+          setPickColumn([...pickColumn, el])
         }
-      break;
+        break;
     }
   }
 
-  const handleReset = (type :FunctionEnum) => {
+  const handleReset = (type: FunctionEnum) => {
     switch (type) {
       case FunctionEnum.DIMENSION:
-        setPickColumn([... pickColumn, ...dimensions])
+        setPickColumn([...pickColumn, ...dimensions])
         setDimensions([]);
         break;
       case FunctionEnum.MEASURE:
-        setPickColumn([... pickColumn, ...measurements])
+        setPickColumn([...pickColumn, ...measurements])
         setMeasurments([]);
         break;
     }
@@ -72,13 +73,17 @@ function App() {
 
 
   useEffect(() => {
-    if(columns){
-      setPickColumn([... columns])
+    if (columns) {
+      setPickColumn([...columns])
     }
-  },[columns])
+  }, [columns])
 
-  useEffect (() => {
-    if(dimensions.length > 0 && measurements.length > 0) {
+
+  /**
+   *  This will only  send or change the params of the POST request if both Dimension and Measure are available.
+   */
+  useEffect(() => {
+    if (dimensions.length > 0 && measurements.length > 0) {
       setParams({
         dimension: dimensions[0].name,
         measures: measurements.map((val) => (val.name))
@@ -86,19 +91,19 @@ function App() {
     }
   }, [measurements, dimensions, setParams])
 
-  const dimensionOnly = useMemo(() => {
-    return columns?.filter((val) => val.function === FunctionEnum.DIMENSION ).map((val) => val.name)
-  },[columns])
 
+  /**
+   *  This function is to handle the response to identify, which is qualitative and quantitative for the graph to display.
+   */
   const modifiedData = useMemo(() => {
     let qualitative: string[] = []
     let quantitative: DataPlotTypes[] = []
 
     data?.forEach((el) => {
-      if(dimensionOnly?.includes(el.name)){
-        qualitative = [...qualitative, ... el.values]
-      }else{
-        quantitative = [... quantitative, el]
+      if (dimensionFunc?.includes(el.name)) {
+        qualitative = [...qualitative, ...el.values]
+      } else {
+        quantitative = [...quantitative, el]
       }
     })
 
@@ -107,7 +112,7 @@ function App() {
       quantitative
     }
 
-  },[data, dimensionOnly])
+  }, [data, dimensionFunc])
 
   return (
     <div>
@@ -119,7 +124,7 @@ function App() {
           {
             pickColumn?.map((val, idx) => (
               <>
-                <ColumnBar key={idx} data={val} format='columnsType'  />
+                <ColumnBar key={idx} data={val} format='columnsType' />
               </>
             ))
           }
@@ -128,25 +133,25 @@ function App() {
           <h1>Plotter</h1>
           <div>
             <span>Dimensions:</span>
-            <DimensionBox 
-              removeItem={(e) => handleRemoveItem(e, FunctionEnum.DIMENSION)} 
-              elements={dimensions} 
-              handleOnDrop={(e) => handleOnDrop(e, FunctionEnum.DIMENSION)} 
+            <DimensionBox
+              removeItem={(e) => handleRemoveItem(e, FunctionEnum.DIMENSION)}
+              elements={dimensions}
+              handleOnDrop={(e) => handleOnDrop(e, FunctionEnum.DIMENSION)}
               onReset={() => handleReset(FunctionEnum.DIMENSION)}
               limit={1}
             />
           </div>
           <div>
             <span>Measurments:</span>
-            <DimensionBox 
-              removeItem={(e) => handleRemoveItem(e, FunctionEnum.MEASURE)} 
-              elements={measurements} 
-              handleOnDrop={(e) => handleOnDrop(e, FunctionEnum.MEASURE)} 
+            <DimensionBox
+              removeItem={(e) => handleRemoveItem(e, FunctionEnum.MEASURE)}
+              elements={measurements}
+              handleOnDrop={(e) => handleOnDrop(e, FunctionEnum.MEASURE)}
               onReset={() => handleReset(FunctionEnum.MEASURE)}
             />
           </div>
-          { dimensions.length > 0 && measurements.length > 0 && 
-            <LinearGraph  qualitative={modifiedData.qualitative} quantitative={modifiedData.quantitative} />
+          {dimensions.length > 0 && measurements.length > 0 &&
+            <LinearGraph qualitative={modifiedData.qualitative} quantitative={modifiedData.quantitative} />
           }
         </div>
       </div>
